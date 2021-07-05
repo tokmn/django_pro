@@ -1,0 +1,16 @@
+# Python
+env/
+__pycache__/
+
+
+# Pycharm
+.idea/
+
+
+# Sqlite
+*.sqlite3
+
+
+# Project
+logs/
+tests/
