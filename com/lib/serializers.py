@@ -31,5 +31,7 @@ class JsonEncoder(json.JSONEncoder):
             return str(o.value)
         elif isinstance(o, (Decimal, uuid.UUID)):
             return str(o)
+        elif isinstance(o, set):
+            return list(o)
         else:
             return super().default(o)
