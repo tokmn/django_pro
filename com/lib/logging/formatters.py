@@ -4,6 +4,7 @@ import logging
 import time
 import traceback
 
+from decimal import Decimal
 from logging import LogRecord
 
 from lib.serializers import JsonEncoder
@@ -42,10 +43,19 @@ class JsonFormatter(logging.Formatter):
             'level': record.levelname,
             'trace_id': getattr(record, 'x_trace_id', None),
             'location': '{}@{}'.format(record.name, record.lineno),
-            'message': self.get_message(record),
         }
+        if record.msg:
+            if isinstance(record.msg, (dict, list, set, tuple, int, float, Decimal)):
+                message = record.msg
+            else:
+                message = self.get_message(record)
+            data['message'] = message
+
         if record.exc_info:
             data['exc_info'] = self.get_format_exception(record.exc_info)
+
+        if hasattr(record, 'duration'):
+            data['duration'] = record.duration
 
         return data
 
