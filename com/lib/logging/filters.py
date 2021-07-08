@@ -11,3 +11,12 @@ class ContextFilter(logging.Filter):
     def filter(self, record) -> bool:
         record.x_trace_id = thread_ctx.get('x_trace_id')
         return True
+
+
+class DiscardFilter(logging.Filter):
+    """
+    Discard log
+    """
+
+    def filter(self, record):
+        return False
