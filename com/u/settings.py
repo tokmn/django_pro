@@ -44,6 +44,8 @@ MIDDLEWARE = [
     # 'django.contrib.auth.middleware.AuthenticationMiddleware',
     # 'django.contrib.messages.middleware.MessageMiddleware',
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'u.utils.middleware.gate.GateMiddleware',
+    'u.utils.middleware.response.ResponseMiddleware'
 ]
 
 ROOT_URLCONF = "u.urls"
@@ -116,3 +118,66 @@ USE_TZ = False
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# ########################################################################
+LOGGING_DIR = BASE_DIR.parent / 'logs'
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '[%(asctime)s] - %(levelname)s - %(name)s@%(lineno)d: %(message)s'
+        },
+        'default': {
+            'format': '[%(asctime)s] - %(levelname)s - %(x_trace_id)s - %(name)s@%(lineno)d: %(message)s',
+        },
+        'standard': {
+            'class': 'lib.logging.formatters.JsonFormatter',
+        },
+    },
+    'filters': {
+        'context': {
+            '()': 'lib.logging.filters.ContextFilter'
+        },
+        'discard': {
+            '()': 'lib.logging.filters.DiscardFilter'
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+            'filters': ['context'],
+            'level': 'DEBUG',
+        },
+        'file': {
+            'class': 'lib.logging.handlers.TimedRotatingFileHandler',
+            'formatter': 'standard',
+            'filters': ['context'],
+            'level': 'DEBUG',
+            'filename': LOGGING_DIR / 'app.log',
+            'when': 'S',
+            'backup_count': 3,
+        },
+        'null': {
+            'class': 'logging.StreamHandler',
+            'filters': ['discard'],
+            'level': 'INFO',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.server': {
+            'handlers': ['null'],
+            'propagate': False,
+        }
+    },
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': 'DEBUG',
+    },
+}
