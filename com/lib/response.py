@@ -1,22 +1,28 @@
 import time
 from django.http.request import HttpRequest
+from django.http.response import JsonResponse as DjangoJsonResponse
 
 from lib.errorcode import SystemErrCode
 from lib.exceptions import ApiException
+from lib.serializers import JsonEncoder
 
 
-class JsonHandler:
-    def __init__(self, request: HttpRequest = None, result=None, exception=None):
-        self.trace_id = getattr(request, 'x_trace_id', str()) if request else None
+class ResponseHandler:
+    """
+    Convert response data
+    """
+
+    def __init__(self, request: HttpRequest = None, data=None, exception=None):
+        self.trace_id = getattr(request, 'X_TRACE_ID', str()) if request else None
 
         self.code = SystemErrCode.success.code
         self.message = SystemErrCode.success.message
         self.detail = str()
-        self.result = dict() if result is None else result
+        self.result = dict() if data is None else data
 
-        self.parse_exception(exception)
+        self._parse_exception(exception)
 
-    def parse_exception(self, e):
+    def _parse_exception(self, e):
         if e is None:
             return
 
@@ -25,11 +31,11 @@ class JsonHandler:
             self.message = e.message
             if e.detail:
                 self.detail = e.detail
-        else:  # Unknown exception
+        else:  # Other exception
             self.code = SystemErrCode.server_internal_error.code
             self.message = SystemErrCode.server_internal_error.message
 
-    def format(self):
+    def to_json(self):
         return dict(
             trace_id=self.trace_id,
             code=self.code,
@@ -39,3 +45,19 @@ class JsonHandler:
             #
             timestamp=int(time.time()),
         )
+
+
+class JsonResponse(DjangoJsonResponse):
+    """
+    Django's JsonResponse subclasee
+    """
+
+    def __init__(self, data: dict = None, request=None, exception=None, **kwargs):
+        """
+        If exists exception, will reset data
+
+        """
+        data = {} if exception is not None else data
+        json_data = ResponseHandler(data=data, request=request, exception=exception).to_json()
+
+        super().__init__(data=json_data, encoder=JsonEncoder, **kwargs)
