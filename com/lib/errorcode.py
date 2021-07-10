@@ -15,5 +15,6 @@ class SystemErrCode:
     System error code
     """
 
-    success = ErrorCode(code=0, message="ok")
-    server_internal_error = ErrorCode(code=1, message="服务器开小差啦，请稍后再试！")
+    SUCCESS = ErrorCode(code=0, message="ok")
+    INTERNAL_SERVER_ERROR = ErrorCode(code=1, message="internal server error, please try again later.")
+    INVALID_REQUEST = ErrorCode(code=2, message="invalid request")

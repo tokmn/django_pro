@@ -15,8 +15,8 @@ class ResponseHandler:
     def __init__(self, request: HttpRequest = None, data=None, exception=None):
         self.trace_id = getattr(request, 'X_TRACE_ID', str()) if request else None
 
-        self.code = SystemErrCode.success.code
-        self.message = SystemErrCode.success.message
+        self.code = SystemErrCode.SUCCESS.code
+        self.message = SystemErrCode.SUCCESS.message
         self.detail = str()
         self.result = dict() if data is None else data
 
@@ -32,8 +32,8 @@ class ResponseHandler:
             if e.detail:
                 self.detail = e.detail
         else:  # Other exception
-            self.code = SystemErrCode.server_internal_error.code
-            self.message = SystemErrCode.server_internal_error.message
+            self.code = SystemErrCode.INTERNAL_SERVER_ERROR.code
+            self.message = SystemErrCode.INTERNAL_SERVER_ERROR.message
 
     def to_json(self):
         return dict(
