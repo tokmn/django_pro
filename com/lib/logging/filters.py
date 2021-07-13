@@ -1,4 +1,5 @@
 import logging
+from logging import LogRecord
 
 from lib.threadutils import thread_ctx
 
@@ -20,3 +21,22 @@ class DiscardFilter(logging.Filter):
 
     def filter(self, record):
         return False
+
+
+class ReportFilter(logging.Filter):
+    """
+    Report specific log
+    """
+
+    def filter(self, record: LogRecord) -> bool:
+        """
+        Error log and above it or exc_info exists, will be filtered and reported
+
+        :param record:
+        :return:
+        """
+        if record.levelno >= logging.ERROR or record.exc_info:
+            # TODO add report service
+            pass
+
+        return True
