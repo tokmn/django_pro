@@ -1,5 +1,4 @@
 import fcntl
-
 from contextlib import contextmanager
 
 

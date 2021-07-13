@@ -7,7 +7,7 @@ import traceback
 from logging.handlers import BaseRotatingHandler
 from stat import ST_MTIME
 
-from lib.filelock import file_io_lock
+from lib.lock import file_io_lock
 
 #
 _MIDNIGHT = 24 * 60 * 60  # number of seconds in a day
