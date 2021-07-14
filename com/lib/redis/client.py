@@ -1,6 +1,6 @@
 import redis
-from redis import lock
 
+from .lock import Lock
 from lib.serializers import json_decode, json_encode
 
 
@@ -37,63 +37,84 @@ class Client:
         self.default_version = 1
 
     def _encode(self, obj):
-        """Serialize python obj to a string"""
+        """
+        Serialize python obj to a string
+        """
         return json_encode(obj)
 
     def _decode(self, s):
-        """Deserialize value to a python obj"""
+        """
+        Deserialize value to a python obj
+        """
         return json_decode(s)
 
     def _make_key(self, key, version=None):
-        """Add prefix and version"""
+        """
+        Add prefix and version
+        """
         if version is None:
             version = self.default_version
-        return '{}:{}:{}'.format(self.key_prefix, version, key)
+        _key = '{}:{}:{}'.format(self.key_prefix, version, key)
+        return _key
 
     def shared_and_distributed_lock(self, name, timout=None):
         """
         Shared and distributed lock base on redis
         """
-        return lock.Lock(self._redis, name, timeout=timout)
+        _name = '{}{}:{}'.format(self._make_key(''), '_shared_lock', name)
+        # Set default timeout if possible (# seconds)
+        if timout is None:
+            timout = 6
+        return Lock(self._redis, _name, timeout=timout, sleep=0.1)
 
-    def set(self, name, value, ex=None, nx=False, version=None):
+    def set(self, key, value, ex=None, nx=False, version=None):
         """
         Set the string value of a key
         """
-        key = self._make_key(name, version)
+        _key = self._make_key(key, version)
         value = self._encode(value)
-        # Set default timeout if possible
-        if ex is None:
+        # Set default timeout if possible (# seconds)
+        if ex is None and not self.exists(key, version):
             ex = self.key_default_timeout
-        return self._redis.set(key, value, ex=ex, nx=nx)
+        return self._redis.set(_key, value, ex=ex, nx=nx)
 
-    def get(self, name, version=None):
+    def get(self, key, version=None):
         """
         Get the value of a key
         """
-        key = self._make_key(name, version)
-        value = self._redis.get(key)
+        _key = self._make_key(key, version)
+        value = self._redis.get(_key)
         if value is None:
             return value
         return self._decode(value)
 
-    def delete(self, name, version=None):
+    def delete(self, key, version=None):
         """
         Delete a key
         """
-        key = self._make_key(name, version)
-        return self._redis.delete(key)
+        _key = self._make_key(key, version)
+        return self._redis.delete(_key)
 
-    def exists(self, name, version=None):
+    def exists(self, key, version=None):
         """
         Determine if a key exists
         """
-        key = self._make_key(name, version)
-        return self._redis.exists(key) == 1
+        _key = self._make_key(key, version)
+        return self._redis.exists(_key) == 1
 
-    def expire(self, name, seconds=None, version=None):
+    def expire(self, key, seconds=None, version=None):
         """
         Set a key's time to live in seconds
         """
-        key = self._make_key(name, version)
-        return self._redis.expire(key, seconds)
+        _key = self._make_key(key, version)
+        return self._redis.expire(_key, seconds)
+
+    def ttl(self, key, version=None):
+        """
+        Get the time to live for a key
+
+        - Returns -1 if the key exists but has no associated expire.
+        - Returns -2 if the key does not exist.
+        """
+        _key = self._make_key(key, version)
+        return self._redis.ttl(_key)
