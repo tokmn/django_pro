@@ -35,3 +35,13 @@ class JsonEncoder(json.JSONEncoder):
             return list(o)
         else:
             return super().default(o)
+
+
+def json_encode(obj):
+    """Serialize python obj to a string"""
+    return json.dumps(obj, cls=JsonEncoder)
+
+
+def json_decode(s):
+    """Deserialize value to a python obj"""
+    return json.loads(s)
