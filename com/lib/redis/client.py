@@ -12,8 +12,8 @@ class Client:
             password: str = None,
             max_connections: int = None,
             key_prefix: str = None,
-            set_key_default_timeout: bool = True,
-            key_default_timeout: int = None,
+            set_key_ex: bool = True,
+            key_default_ex: int = None,
     ):
         if max_connections is None:
             max_connections = 2 ** 4
@@ -28,25 +28,31 @@ class Client:
         # Key prefix
         self.key_prefix = key_prefix if key_prefix else ''
         # It's recommend that each key has a default timeout
-        self.key_default_timeout = None
-        if set_key_default_timeout:
-            if key_default_timeout is None:
-                key_default_timeout = 60 * 60 * 24 * 3  # seconds
-            self.key_default_timeout = key_default_timeout
+        self.key_default_ex = None
+        if set_key_ex:
+            if key_default_ex is None:
+                key_default_ex = 60 * 60 * 24 * 7  # seconds
+            self.key_default_ex = key_default_ex
         # Key's default version
         self.default_version = 1
 
-    def _encode(self, obj):
+    def _encode(self, value):
         """
         Serialize python obj to a string
         """
-        return json_encode(obj)
+        if isinstance(value, bool) or not isinstance(value, int):
+            return json_encode(value)
+        return value
 
-    def _decode(self, s):
+    def _decode(self, value):
         """
         Deserialize value to a python obj
         """
-        return json_decode(s)
+        try:
+            value = int(value)
+        except (ValueError, TypeError):
+            value = json_decode(value)
+        return value
 
     def _make_key(self, key, version=None):
         """
@@ -57,15 +63,15 @@ class Client:
         _key = '{}:{}:{}'.format(self.key_prefix, version, key)
         return _key
 
-    def shared_and_distributed_lock(self, name, timout=None):
+    def shared_and_distributed_lock(self, name, timeout=None):
         """
         Shared and distributed lock base on redis
         """
         _name = '{}{}:{}'.format(self._make_key(''), '_shared_lock', name)
         # Set default timeout if possible (# seconds)
-        if timout is None:
-            timout = 6
-        return Lock(self._redis, _name, timeout=timout, sleep=0.1)
+        if timeout is None:
+            timeout = 6
+        return Lock(self._redis, _name, timeout=timeout, sleep=0.1)
 
     def set(self, key, value, ex=None, nx=False, version=None):
         """
@@ -73,9 +79,9 @@ class Client:
         """
         _key = self._make_key(key, version)
         value = self._encode(value)
-        # Set default timeout if possible (# seconds)
-        if ex is None and not self.exists(key, version):
-            ex = self.key_default_timeout
+        # Set default expires if possible (# seconds)
+        if ex is None:
+            ex = self.key_default_ex
         return self._redis.set(_key, value, ex=ex, nx=nx)
 
     def get(self, key, version=None):
