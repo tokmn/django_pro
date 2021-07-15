@@ -68,10 +68,7 @@ class Client:
         Shared and distributed lock base on redis
         """
         _name = '{}{}:{}'.format(self._make_key(''), '_shared_lock', name)
-        # Set default timeout if possible (# seconds)
-        if timeout is None:
-            timeout = 6
-        return Lock(self._redis, _name, timeout=timeout, sleep=0.1)
+        return Lock(self._redis, _name, timeout=timeout)
 
     def set(self, key, value, ex=None, nx=False, version=None):
         """
