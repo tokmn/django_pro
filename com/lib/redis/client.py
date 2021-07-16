@@ -1,7 +1,10 @@
+import logging
 import redis
 
 from .lock import Lock
 from lib.serializers import json_decode, json_encode
+
+logger = logging.getLogger(__name__)
 
 
 class Client:
@@ -35,6 +38,8 @@ class Client:
             self.key_default_ex = key_default_ex
         # Key's default version
         self.default_version = 1
+
+        logger.debug('Redis client init successfully')
 
     def _encode(self, value):
         """
