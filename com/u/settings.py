@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     # 'django.contrib.sessions',
     # 'django.contrib.messages',
     # 'django.contrib.staticfiles',
+    'core_cache',
 ]
 
 MIDDLEWARE = [
@@ -180,4 +181,13 @@ LOGGING = {
         'handlers': ['console', 'file'],
         'level': 'DEBUG',
     },
+}
+
+# Redis config
+REDIS_CONF = {
+    'host': 'localhost',
+    'port': 6379,
+    'db': 0,
+    'password': 'xxx',
+    'max_connections': 2 ** 6
 }
