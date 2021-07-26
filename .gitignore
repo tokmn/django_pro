@@ -11,6 +11,10 @@ __pycache__/
 *.sqlite3
 
 
+# Django
+**/migrations/[0-9]*
+
+
 # Project
 logs/
 tests/

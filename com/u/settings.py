@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     # 'django.contrib.messages',
     # 'django.contrib.staticfiles',
     'core_cache',
+    'core_task',
 ]
 
 MIDDLEWARE = [
@@ -71,12 +72,12 @@ WSGI_APPLICATION = "u.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR.parent / "db.sqlite3",
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR.parent / 'db.sqlite3',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -190,4 +191,18 @@ REDIS_CONF = {
     'db': 0,
     'password': 'xxx',
     'max_connections': 2 ** 6
+}
+
+# Database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'django_pro',
+        'HOST': 'localhost',
+        'PORT': 3306,
+        'USER': 'root',
+        'PASSWORD': 'mysql123',
+        'CONN_MAX_AGE': 60,
+        'OPTIONS': {},
+    }
 }
