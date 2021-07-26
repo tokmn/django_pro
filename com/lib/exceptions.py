@@ -1,6 +1,17 @@
 import json
 
 
+class DjangoORMError(Exception):
+    pass
+
+
+class DuplicateEntryForMySQL(DjangoORMError):
+    """
+    django.db.utils.IntegrityError: (1062, "Duplicate entry xxx")
+    """
+    code = 1062
+
+
 class CodeError(Exception):
     """
     Code error
