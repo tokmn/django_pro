@@ -100,10 +100,10 @@ class TaskExecutor(Thread):
         is_running = True
         while not stop_signal:
             waiting_tasks = engine.get_waiting_tasks()
-            logger.info('Get waiting task count: {}'.format(len(waiting_tasks)))
             if not waiting_tasks:
                 time.sleep(executor_idle_sleep_seconds)
                 continue
+            logger.info('Get waiting task count: {}'.format(len(waiting_tasks)))
             for task in waiting_tasks:
                 # Set trace_id
                 thread_ctx.set('x_trace_id', task.trace_id)
