@@ -68,7 +68,7 @@ class TaskExecutor(Thread):
                 return
 
             # Execute task
-            result = task_func.execute(*task.task_args, **task.task_kwargs)
+            result = task_func(*task.task_args, **task.task_kwargs)
             if result and isinstance(result, datetime.datetime):
                 engine.retry_task(task_id=task.pk, next_run_at=result)
                 logger.info('Retry task, task_id: {}, next_run_at: {}'.format(task.pk, result))
