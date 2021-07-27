@@ -68,20 +68,22 @@ def update_task(task_name, task_attr, run_at, task_args=None, task_kwargs=None, 
         'Update task, task_name:{}, task_attr:{}, run_at:{}, task_args:{}, task_kwargs:{}, extra:{}, remark:{}'.format(
             task_name, task_attr, run_at, task_args, task_kwargs, extra, remark
         ))
-    if run_at is None:
-        run_at = datetime.datetime.now()
+
+    filter_kwargs = dict(status=TaskStatus.WAITING.value)
+
+    update_kwargs = {}
+    for key, value in dict(run_at=run_at, extra=extra, remark=remark,
+                           task_args=task_args, task_kwargs=task_kwargs).items():
+        if value is not None:
+            update_kwargs[key] = value
+    if not update_kwargs:
+        logger.info('Update task end. nothing to updated')
+        return
 
     updated_task_count = engine.update_task(
-        task_name,
-        task_attr,
-        filter_kwargs=dict(status=TaskStatus.WAITING.value),
-        update_kwargs=dict(
-            run_at=run_at,
-            task_args=task_args or [],
-            task_kwargs=task_kwargs or {},
-            extra=extra or {},
-            remark=remark,
-        )
+        task_name, task_attr,
+        filter_kwargs=filter_kwargs,
+        update_kwargs=update_kwargs
     )
     logger.info('Update task end. updated_task_count:{}'.format(updated_task_count))
 
