@@ -1,7 +1,7 @@
 import logging
 import signal
 
-from ..executor import run, stop_task_executor
+from ..task.executor import run, stop_task_executor
 from django.core.management.base import BaseCommand
 
 #

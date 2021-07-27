@@ -5,8 +5,8 @@ import traceback
 from importlib import import_module
 from threading import Thread
 
-from ..constants import TaskStatus
-from ..models import Task
+from ...constants import TaskStatus
+from ...models import Task
 from .taskapi import engine
 from lib.threadutils import thread_ctx
 

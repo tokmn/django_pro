@@ -2,7 +2,7 @@ import datetime
 import logging
 
 from lib.exceptions import DuplicateEntryForMySQL
-from ..constants import TaskStatus
+from ...constants import TaskStatus
 from .taskengines import engine
 
 #

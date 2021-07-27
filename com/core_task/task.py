@@ -3,7 +3,7 @@ import os
 import sys
 import inspect
 
-from .management import taskapi
+from .management.task import taskapi
 from lib.exceptions import CodeError
 
 
