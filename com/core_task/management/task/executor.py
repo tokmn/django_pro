@@ -14,7 +14,8 @@ from lib.threadutils import thread_ctx
 logger = logging.getLogger(__name__)
 
 # Sleep time
-executor_idle_seconds = 2
+executor_idle_sleep_seconds = 2
+executor_start_interval = 0.5
 # Thread count
 default_thread_count = 4
 #
@@ -101,12 +102,13 @@ class TaskExecutor(Thread):
             waiting_tasks = engine.get_waiting_tasks()
             logger.info('Get waiting task count: {}'.format(len(waiting_tasks)))
             if not waiting_tasks:
-                time.sleep(executor_idle_seconds)
+                time.sleep(executor_idle_sleep_seconds)
                 continue
             for task in waiting_tasks:
+                # Set trace_id
                 thread_ctx.set('x_trace_id', task.trace_id)
                 self.execute_task(task)
-
+            # Clear thread_ctx
             thread_ctx.clear()
         else:
             logger.info('{} is stopped'.format(self.name))
@@ -128,5 +130,6 @@ def run(thread_count=None):
     for i in range(thread_count):
         task_executor = TaskExecutor(name='Task-executor-{}'.format(i + 1))
         task_executor.start()
+        time.sleep(executor_start_interval)
 
     logger.info('Start all task executor successfully')
