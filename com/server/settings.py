@@ -158,14 +158,22 @@ LOGGING = {
             'filters': ['context'],
             'level': 'DEBUG',
             'filename': LOGGING_DIR / 'app.log',
-            'when': 'S',
+            'when': 'M',
             'backup_count': 3,
         },
         'null': {
             'class': 'logging.StreamHandler',
             'filters': ['discard'],
             'level': 'INFO',
-        }
+        },
+        'task': {
+            'class': 'lib.logging.handlers.TimedRotatingFileHandler',
+            'formatter': 'standard',
+            'level': 'DEBUG',
+            'filename': LOGGING_DIR / 'task.log',
+            'when': 'M',
+            'backup_count': 3,
+        },
     },
     'loggers': {
         'django': {
@@ -176,7 +184,12 @@ LOGGING = {
         'django.server': {
             'handlers': ['null'],
             'propagate': False,
-        }
+        },
+        'core_task': {
+            'handlers': ['task'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     },
     'root': {
         'handlers': ['console', 'file'],
