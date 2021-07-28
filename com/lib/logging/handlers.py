@@ -23,7 +23,6 @@ class TimedRotatingFileHandler(BaseRotatingHandler):
     - 命名规范化
     - 多进程安全
 
-
     # ===========
 
     Handler for logging to a file, rotating the log file at certain timed
@@ -34,7 +33,8 @@ class TimedRotatingFileHandler(BaseRotatingHandler):
     """
 
     def __init__(
-            self, filename, when='h', interval=1, backup_count=0, encoding=None, delay=False, utc=False, at_time=None
+            self, filename, when='h', interval=1, backup_count=0, encoding=None, delay=False, utc=False, at_time=None,
+            strict_mode=False,
     ):
         BaseRotatingHandler.__init__(self, filename, 'a', encoding, delay)
         #
@@ -48,6 +48,8 @@ class TimedRotatingFileHandler(BaseRotatingHandler):
         self.backup_count = backup_count
         self.utc = utc
         self.at_time = at_time
+        #
+        self.strict_mode = strict_mode
         # Calculate the real rollover interval, which is just the number of
         # seconds between rollovers.  Also set the filename suffix used when
         # a rollover occurs.  Current 'when' events supported:
@@ -113,10 +115,33 @@ class TimedRotatingFileHandler(BaseRotatingHandler):
         except Exception:
             traceback.print_exc()
 
+    def compute_rollover_not_strict(self, current_time):
+        """
+        # S - Seconds
+        # M - Minutes
+        # H - Hours
+        # D - Days
+        """
+        diff_time = 0
+        t = time.localtime(current_time)
+        if self.when == 'M':
+            diff_time = t.tm_sec
+        elif self.when == 'H':
+            diff_time = t.tm_sec + t.tm_min * 60
+        elif self.when == 'D':
+            diff_time = t.tm_sec + t.tm_min * 60 + t.tm_hour * 60 * 60
+        else:  # Seconds
+            pass
+
+        return current_time + self.interval - diff_time
+
     def compute_rollover(self, current_time):
         """
         Work out the rollover time based on the specified time.
         """
+        if self.when in ['S', 'M', 'H', 'D'] and not self.strict_mode and not self.utc:
+            return self.compute_rollover_not_strict(current_time)
+
         result = current_time + self.interval
         # If we are rolling over at midnight or weekly, then the interval is already known.
         # What we need to figure out is WHEN the next interval is.  In other words,
@@ -247,7 +272,7 @@ class TimedRotatingFileHandler(BaseRotatingHandler):
                 else:
                     addend = -3600
                 time_tuple = time.localtime(t + addend)
-        dest_filename = self.rotation_filename(self.base_filename + "." + time.strftime(self.suffix, time_tuple))
+        dest_filename = self.rotation_filename(self.base_filename + '.' + time.strftime(self.suffix, time_tuple))
         # 判断是否切分日志文件
         if not os.path.exists(dest_filename):
             with file_io_lock(self.lock_file):
