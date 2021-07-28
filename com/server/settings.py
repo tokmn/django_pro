@@ -134,15 +134,15 @@ LOGGING = {
             'format': '[%(asctime)s] - %(levelname)s - %(x_trace_id)s - %(name)s@%(lineno)d: %(message)s',
         },
         'standard': {
-            'class': 'lib.logging.formatters.JsonFormatter',
+            'class': 'lib.log.formatters.JsonFormatter',
         },
     },
     'filters': {
         'context': {
-            '()': 'lib.logging.filters.ContextFilter'
+            '()': 'lib.log.filters.ContextFilter'
         },
         'discard': {
-            '()': 'lib.logging.filters.DiscardFilter'
+            '()': 'lib.log.filters.DiscardFilter'
         }
     },
     'handlers': {
@@ -153,7 +153,7 @@ LOGGING = {
             'level': 'DEBUG',
         },
         'file': {
-            'class': 'lib.logging.handlers.TimedRotatingFileHandler',
+            'class': 'lib.log.handlers.TimedRotatingFileHandler',
             'formatter': 'standard',
             'filters': ['context'],
             'level': 'DEBUG',
@@ -167,7 +167,7 @@ LOGGING = {
             'level': 'INFO',
         },
         'task': {
-            'class': 'lib.logging.handlers.TimedRotatingFileHandler',
+            'class': 'lib.log.handlers.TimedRotatingFileHandler',
             'formatter': 'standard',
             'level': 'DEBUG',
             'filename': LOGGING_DIR / 'task.log',
