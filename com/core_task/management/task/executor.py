@@ -37,7 +37,7 @@ def import_task_func(task_name):
     module_name, func_name = task_name.split(':')
     task_func = getattr(import_module(module_name), func_name)
     task_func_map[task_name] = task_func
-    logger.info('Import task func successfully. task_name: {}'.format(task_name))
+    logger.info(f'Import task func successfully. task_name: {task_name}')
 
     return task_func
 
@@ -52,7 +52,7 @@ class TaskExecutor(Thread):
         Parse task func and execute
         """
         try:
-            logger.info('Execute task, task info: {}'.format(task.to_dict()))
+            logger.info(f'Execute task, task info: {task.to_dict()}')
             task_func = task_func_map.get(task.task_name, None)
             if not task_func:
                 task_func = import_task_func(task.task_name)
@@ -64,29 +64,27 @@ class TaskExecutor(Thread):
                 update_kwargs=dict(status=TaskStatus.RUNNING.value)
             )
             if not bool(updated_task_count):
-                logger.warning('Task is not pending, execute task failed. task_id: {}'.format(task.pk))
+                logger.warning(f'Task is not pending, execute task failed. task_id: {task.pk}')
                 return
 
             # Execute task
             result = task_func(*task.task_args, **task.task_kwargs)
             if result and isinstance(result, datetime.datetime):
                 engine.retry_task(task_id=task.pk, next_run_at=result)
-                logger.info('Retry task, task_id: {}, next_run_at: {}'.format(task.pk, result))
+                logger.info(f'Retry task, task_id: {task.pk}, next_run_at: {result}')
                 return
         except Exception as _:
             task.status = TaskStatus.FAILED.value
             task.exc_info = traceback.format_exc()
             task.save()
-            logger.exception('Task func execute failed. task info: {}'.format(task.to_dict()))
+            logger.exception(f'Task func execute failed. task info: {task.to_dict()}')
             return
         else:
             # NOTE: Don't save the successful task
             # task.status = TaskStatus.SUCCESS.value
             # task.save()
-            logger.info(
-                'Task func execute successfully. task info: {}, executed result: {}'.format(
-                    task.to_dict(), result)
-            )
+            logger.info(f'Task func execute successfully. task info: {task.to_dict()}, executed result: {result}')
+
         # Delete task
         engine.delete_task(task_name=task.task_name, task_attr=task.task_attr)
 
@@ -95,7 +93,7 @@ class TaskExecutor(Thread):
         Get tasks and run
         :return:
         """
-        logger.info('{} start ...'.format(self.name))
+        logger.info(f'{self.name} start ...')
         global is_running
         is_running = True
         while not stop_signal:
@@ -103,7 +101,7 @@ class TaskExecutor(Thread):
             if not waiting_tasks:
                 time.sleep(executor_idle_sleep_seconds)
                 continue
-            logger.info('Get waiting task count: {}'.format(len(waiting_tasks)))
+            logger.info(f'Get waiting task count: {len(waiting_tasks)}')
             for task in waiting_tasks:
                 # Set trace_id
                 thread_ctx.set('x_trace_id', task.trace_id)
@@ -111,7 +109,7 @@ class TaskExecutor(Thread):
             # Clear thread_ctx
             thread_ctx.clear()
         else:
-            logger.info('{} is stopped'.format(self.name))
+            logger.info(f'{self.name} is stopped')
 
 
 def run(thread_count=None):
@@ -125,10 +123,10 @@ def run(thread_count=None):
 
     if thread_count is None:
         thread_count = default_thread_count
-    logger.info('Task executor thread count: {}'.format(thread_count))
+    logger.info(f'Task executor thread count: {thread_count}')
 
     for i in range(thread_count):
-        task_executor = TaskExecutor(name='Task-executor-{}'.format(i + 1))
+        task_executor = TaskExecutor(name=f'Task-executor-{i + 1}')
         task_executor.start()
         time.sleep(executor_start_interval)
 

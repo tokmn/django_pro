@@ -21,10 +21,8 @@ def add_task(task_name, task_attr, run_at, task_args=None, task_kwargs=None, ext
     :param remark:
     :return:
     """
-    logger.info(
-        'Add task, task_name:{}, task_attr:{}, run_at:{}, task_args:{}, task_kwargs:{}, extra:{}, remark:{}'.format(
-            task_name, task_attr, run_at, task_args, task_kwargs, extra, remark
-        ))
+    logger.info(f'Add task, task_name:{task_name}, task_attr:{task_attr}, run_at:{run_at}, '
+                f'task_args:{task_args}, task_kwargs:{task_kwargs}, extra:{extra}, remark:{remark}')
     status = TaskStatus.WAITING.value
     # If not set run_at, task will run immediately
     if not run_at:
@@ -46,7 +44,7 @@ def add_task(task_name, task_attr, run_at, task_args=None, task_kwargs=None, ext
         else:
             logger.exception('Add task error')
     else:
-        logger.info('Add task successfully. {}'.format(task.to_dict()))
+        logger.info(f'Add task successfully. {task.to_dict()}')
 
 
 def update_task(task_name, task_attr, run_at, task_args=None, task_kwargs=None, extra=None, remark=None):
@@ -64,10 +62,8 @@ def update_task(task_name, task_attr, run_at, task_args=None, task_kwargs=None, 
     :param remark:
     :return:
     """
-    logger.info(
-        'Update task, task_name:{}, task_attr:{}, run_at:{}, task_args:{}, task_kwargs:{}, extra:{}, remark:{}'.format(
-            task_name, task_attr, run_at, task_args, task_kwargs, extra, remark
-        ))
+    logger.info(f'Add task, task_name:{task_name}, task_attr:{task_attr}, run_at:{run_at}, '
+                f'task_args:{task_args}, task_kwargs:{task_kwargs}, extra:{extra}, remark:{remark}')
 
     filter_kwargs = dict(status=TaskStatus.WAITING.value)
 
@@ -85,7 +81,7 @@ def update_task(task_name, task_attr, run_at, task_args=None, task_kwargs=None, 
         filter_kwargs=filter_kwargs,
         update_kwargs=update_kwargs
     )
-    logger.info('Update task end. updated_task_count:{}'.format(updated_task_count))
+    logger.info(f'Update task end. updated_task_count:{updated_task_count}')
 
 
 def cancel_task(task_name, task_attr):
@@ -95,7 +91,6 @@ def cancel_task(task_name, task_attr):
     :param task_attr:
     :return:
     """
-    logger.info('Cancel task, task_name:{}, task_attr:{}'.format(task_name, task_attr))
+    logger.info(f'Cancel task, task_name:{task_name}, task_attr:{task_attr}')
     canceled, canceled_task_count = engine.delete_task(task_name=task_name, task_attr=task_attr)
-    logger.info('Cancel task successfully, canceled:{}, canceled_task_count:{}'.format(
-        canceled, canceled_task_count))
+    logger.info(f'Cancel task successfully, canceled:{canceled}, canceled_task_count:{canceled_task_count}')

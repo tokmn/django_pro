@@ -61,7 +61,7 @@ class GateMiddleware(MiddlewareMixin):
             try:
                 x_request_data = json.loads(decoded_body)
             except:
-                logger.exception('deserialize body failed, body: {}'.format(decoded_body))
+                logger.exception(f'deserialize body failed, body: {decoded_body}')
                 x_exception = ApiException(SystemErrCode.INVALID_REQUEST,
                                            detail='deserialize body failed')
         else:
