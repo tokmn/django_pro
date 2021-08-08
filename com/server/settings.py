@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     # 'django.contrib.messages',
     # 'django.contrib.staticfiles',
     'core_cache',
+    'core_mq',
     'core_task',
 ]
 
@@ -158,7 +159,7 @@ LOGGING = {
             'filters': ['context'],
             'level': 'DEBUG',
             'filename': LOGGING_DIR / 'app.log',
-            'when': 'M',
+            'when': 'D',
             'backup_count': 3,
         },
         'null': {
@@ -171,7 +172,23 @@ LOGGING = {
             'formatter': 'standard',
             'level': 'DEBUG',
             'filename': LOGGING_DIR / 'task.log',
-            'when': 'M',
+            'when': 'D',
+            'backup_count': 3,
+        },
+        'mq': {
+            'class': 'lib.log.handlers.TimedRotatingFileHandler',
+            'formatter': 'standard',
+            'level': 'DEBUG',
+            'filename': LOGGING_DIR / 'mq.log',
+            'when': 'D',
+            'backup_count': 3,
+        },
+        'pika': {
+            'class': 'lib.log.handlers.TimedRotatingFileHandler',
+            'formatter': 'standard',
+            'level': 'DEBUG',
+            'filename': LOGGING_DIR / 'pika.log',
+            'when': 'D',
             'backup_count': 3,
         },
     },
@@ -190,10 +207,20 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        'core_mq': {
+            'handlers': ['mq', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'pika': {
+            'handlers': ['pika'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     },
     'root': {
         'handlers': ['console', 'file'],
-        'level': 'DEBUG',
+        'level': 'INFO',
     },
 }
 
@@ -217,5 +244,32 @@ DATABASES = {
         'PASSWORD': 'mysql123',
         'CONN_MAX_AGE': 60,
         'OPTIONS': {},
+    }
+}
+
+# RabbitMQ
+RABBITMQ_CONF = {
+    'host': 'localhost',
+    'port': 5672,
+    'vhost': '/local',
+    'username': 'username',
+    'password': 'password',
+    'heartbeat': 0,
+    #
+    'exchange_map': {
+        'task': {
+            'exchange_info': {
+                'exchange': 'task',
+                'exchange_type': 'topic',
+                'durable': True,
+            },
+            'queue_info_list': [
+                {
+                    'queue': 'task',
+                    'routing_keys': ['task.#'],
+                    'count': 3,
+                },
+            ]
+        }
     }
 }
