@@ -7,9 +7,9 @@ from django.http.request import HttpRequest
 from django.http.request import MultiValueDict, QueryDict
 from django.utils.deprecation import MiddlewareMixin
 
-from lib.threadutils import thread_ctx
-from lib.errorcode import SystemErrCode
-from lib.exceptions import ApiException
+from utils.threadutils import thread_ctx
+from utils.errorcode import SystemErrCode
+from utils.exceptions import ApiException
 
 #
 logger = logging.getLogger(__name__)

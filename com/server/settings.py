@@ -34,9 +34,8 @@ INSTALLED_APPS = [
     # 'django.contrib.sessions',
     # 'django.contrib.messages',
     # 'django.contrib.staticfiles',
-    'core_cache',
-    'core_mq',
-    'core_task',
+    'utils.mq',
+    'utils.task',
 ]
 
 MIDDLEWARE = [
@@ -135,15 +134,15 @@ LOGGING = {
             'format': '[%(asctime)s] - %(levelname)s - %(x_trace_id)s - %(name)s@%(lineno)d: %(message)s',
         },
         'standard': {
-            'class': 'lib.log.formatters.JsonFormatter',
+            'class': 'utils.log.formatters.JsonFormatter',
         },
     },
     'filters': {
         'context': {
-            '()': 'lib.log.filters.ContextFilter'
+            '()': 'utils.log.filters.ContextFilter'
         },
         'discard': {
-            '()': 'lib.log.filters.DiscardFilter'
+            '()': 'utils.log.filters.DiscardFilter'
         }
     },
     'handlers': {
@@ -154,7 +153,7 @@ LOGGING = {
             'level': 'DEBUG',
         },
         'file': {
-            'class': 'lib.log.handlers.TimedRotatingFileHandler',
+            'class': 'utils.log.handlers.TimedRotatingFileHandler',
             'formatter': 'standard',
             'filters': ['context'],
             'level': 'DEBUG',
@@ -168,7 +167,7 @@ LOGGING = {
             'level': 'INFO',
         },
         'task': {
-            'class': 'lib.log.handlers.TimedRotatingFileHandler',
+            'class': 'utils.log.handlers.TimedRotatingFileHandler',
             'formatter': 'standard',
             'level': 'DEBUG',
             'filename': LOGGING_DIR / 'task.log',
@@ -176,7 +175,7 @@ LOGGING = {
             'backup_count': 3,
         },
         'mq': {
-            'class': 'lib.log.handlers.TimedRotatingFileHandler',
+            'class': 'utils.log.handlers.TimedRotatingFileHandler',
             'formatter': 'standard',
             'level': 'DEBUG',
             'filename': LOGGING_DIR / 'mq.log',
@@ -184,7 +183,7 @@ LOGGING = {
             'backup_count': 3,
         },
         'pika': {
-            'class': 'lib.log.handlers.TimedRotatingFileHandler',
+            'class': 'utils.log.handlers.TimedRotatingFileHandler',
             'formatter': 'standard',
             'level': 'DEBUG',
             'filename': LOGGING_DIR / 'pika.log',
@@ -202,12 +201,12 @@ LOGGING = {
             'handlers': ['null'],
             'propagate': False,
         },
-        'core_task': {
+        'utils.task': {
             'handlers': ['task'],
             'level': 'INFO',
             'propagate': False,
         },
-        'core_mq': {
+        'utils.mq': {
             'handlers': ['mq', 'console'],
             'level': 'INFO',
             'propagate': False,
