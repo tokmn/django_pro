@@ -62,4 +62,4 @@ class JsonFormatter(logging.Formatter):
     def format(self, record):
         data = self.wrap_data(record)
 
-        return json.dumps(data, ensure_ascii=False, cls=JsonEncoder)
+        return json.dumps(data, cls=JsonEncoder)
